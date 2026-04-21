@@ -1,0 +1,226 @@
+/* src/sections/sp/heroSP.css */
+
+/* ============ SP HERO (isolated) ============ */
+.hero-sp{
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #1a1612;
+
+  /* SPでの“重心”調整（好みで微調整するならここだけ） */
+  --copy-shift: -10px;          /* コピー塊を少し上へ */
+  --object-shift: -14px;        /* GIFTをさらに少し上へ */
+  --side: 18px;                 /* SP余白 */
+}
+
+/* 画像：SPは切り取りが命 */
+.hero-sp__img{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* ✅ SP向けに少し左へ寄せて“ベッド＋タオル”が主役になる想定 */
+  object-position: 56% 46%;
+
+  z-index: 0;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 暗幕：ほぼ無。文字の“下だけ”支える */
+.hero-sp__depth{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.14;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 58%, rgba(6,4,2,0.42), transparent 68%),
+    linear-gradient(to top, rgba(6,4,2,0.22), transparent 60%);
+}
+
+/* 上のナビ可読性をほんの少しだけ */
+.hero-sp__topshade{
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 132px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.10;
+  background: linear-gradient(to bottom, rgba(6,4,2,0.42), transparent 88%);
+}
+
+/* 英字object：SPは小さく、薄く、主張しない */
+.hero-sp__object{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+
+  transform: translate3d(0, var(--object-shift), 0);
+
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  letter-spacing: 0.52em;
+  font-size: clamp(4.4rem, 14vw, 7.6rem);
+  color: rgba(255,252,245,0.045);
+  mix-blend-mode: soft-light;
+}
+
+/* Center */
+.hero-sp__center{
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding-inline: var(--side);
+}
+
+/* Copy block */
+.hero-sp__copy{
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  transform: translate3d(0, var(--copy-shift), 0);
+  text-align: center;
+
+  /* “息” */
+  gap: 12px;
+  max-width: 92vw;
+  margin-inline: auto;
+}
+
+/* Tag */
+.hero-sp__tag{
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: 0.54rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255,252,245,0.42);
+}
+
+/* H1 */
+.hero-sp__h1{
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 小見出し */
+.hero-sp__sm{
+  font-family: "Noto Serif JP", serif;
+  font-weight: 200;
+  font-size: clamp(0.98rem, 4.2vw, 1.28rem);
+  letter-spacing: 0.16em;
+  line-height: 1.55;
+  color: rgba(255,252,245,0.56);
+}
+
+/* 主見出し：SPは“圧”を抑えて崩さない */
+.hero-sp__lg{
+  font-family: "Noto Serif JP", serif;
+  font-weight: 180;
+ /* 旧: clamp(2.05rem, 8.2vw, 3.00rem); */
+font-size: clamp(1.95rem, 7.6vw, 2.82rem);
+  letter-spacing: 0.04em;
+  line-height: 1.14;
+  color: rgba(255,252,245,0.84);
+  text-shadow: 0 1px 14px rgba(0,0,0,0.14);
+}
+
+/* Sub：意味じゃなく質感 */
+.hero-sp__sub{
+  margin: 6px 0 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.72rem;
+  letter-spacing: 0.20em;
+  color: rgba(255,252,245,0.40);
+}
+
+/* Split animation */
+.split{ display: inline-block; }
+.split-char{
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.998);
+  filter: blur(0.18px);
+  will-change: opacity, transform, filter;
+  animation: spCharIn 0.92s cubic-bezier(0.22,0.1,0.28,1) forwards;
+  animation-delay: var(--d);
+}
+@keyframes spCharIn{
+  to{
+    opacity: 1;
+    transform: translate3d(0,0,0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* CTA（下に独立） */
+.hero-sp__cta{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+}
+
+.hero-sp__cta::before{
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  width: 74px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: rgba(210,178,120,0.18);
+}
+
+.hero-sp__ctaLink{
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+
+  font-family: "Noto Serif JP", serif;
+  font-size: 0.70rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+
+  color: rgba(255,252,245,0.84);
+  text-decoration: none;
+
+  transition: gap 0.55s cubic-bezier(0.22,0.1,0.28,1);
+}
+
+.hero-sp__ctaLink::after{
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: rgba(210,178,120,0.42);
+  transition: width 0.75s cubic-bezier(0.22,0.1,0.28,1);
+}
+
+.hero-sp__ctaLink:hover{ gap: 20px; }
+.hero-sp__ctaLink:hover::after{ width: 52px; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .split-char{ animation: none; opacity: 1; transform: none; filter: none; }
+  .hero-sp__ctaLink, .hero-sp__ctaLink::after{ transition: none; }
+}

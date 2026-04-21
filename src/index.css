@@ -1,0 +1,632 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   Design Tokens
+   ★ v2 : CSS カスタムプロパティに一元化
+========================================================= */
+:root {
+  /* ── Colors ── */
+  --c-base:        #F8F5F0;
+  --c-ink:         #252118;
+  --c-hero-bg:     #1a1612;
+
+  /* ivory (hero text) */
+  --c-ivory-100: rgba(255, 252, 245, 1.00);
+  --c-ivory-84:  rgba(255, 252, 245, 0.84);
+  --c-ivory-56:  rgba(255, 252, 245, 0.56);
+  --c-ivory-44:  rgba(255, 252, 245, 0.44);
+  --c-ivory-40:  rgba(255, 252, 245, 0.40);
+
+  /* gold accent */
+  --c-gold:      rgba(210, 178, 120, 1.00);
+  --c-gold-60:   rgba(210, 178, 120, 0.60);
+  --c-gold-46:   rgba(210, 178, 120, 0.46);
+  --c-gold-20:   rgba(210, 178, 120, 0.20);
+  --c-gold-mute: rgba(176, 144,  96, 0.78);
+
+  /* scroll indicator */
+  --c-scroll:    rgba(240, 235, 225, 0.34);
+  --c-scroll-ln: rgba(240, 235, 225, 0.18);
+
+  /* ── Spacing ── */
+  --hero-side: clamp(40px, 6vw, 100px);
+
+  /* ✅ Hero center shift（ここが追加） */
+  --hero-copy-shift:   -34px;  /* いま -10px → もう少し上へ */
+  --hero-object-shift: -44px;  /* いま -14px → objectも連動で上へ */
+
+  /* ── Easing ── */
+  --ease-smooth: cubic-bezier(0.22, 0.1, 0.28, 1);
+}
+
+
+/* =========================================================
+   Base
+========================================================= */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px; /* 固定ナビ分のオフセット */
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  overflow-x: hidden;
+  background: var(--c-base);
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Subtle grain overlay (fixed) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+
+/* =========================================================
+   AQ Reveal  (scroll-triggered fade-up)
+========================================================= */
+.aq-reveal {
+  opacity: 0;
+  transform: translateY(18px) scale(0.995);
+  transition:
+    opacity  1.05s var(--ease-smooth),
+    transform 1.05s var(--ease-smooth);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+.aq-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* CTA 専用：移動を短く・遅めに（しゅぱーん対策） */
+.aq-reveal.hero-cta-soft {
+  transform: translate3d(0, 8px, 0) scale(0.999);
+  transition:
+    opacity  1.25s var(--ease-smooth),
+    transform 1.25s var(--ease-smooth);
+}
+.aq-reveal.is-visible.hero-cta-soft {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+
+/* =========================================================
+   Hero  —  root container
+========================================================= */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--c-hero-bg);
+}
+
+
+/* =========================================================
+   Hero  —  Image layer (z:0)
+========================================================= */
+.hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 45%;
+  z-index: 0;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+/* =========================================================
+   Hero  —  Depth & shade overlays (z:1–2)
+========================================================= */
+
+/* ほぼ存在しない：中央テキスト用の薄いヴィネット */
+.hero-depth {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.16;
+  background:
+    radial-gradient(
+      ellipse 62% 55% at 50% 58%,
+      rgba(6, 4, 2, 0.42) 0%,
+      rgba(6, 4, 2, 0.00) 66%
+    ),
+    linear-gradient(to bottom,
+      rgba(6, 4, 2, 0.00) 0%,
+      rgba(6, 4, 2, 0.16) 100%
+    );
+}
+
+/* 上部の微妙なシェード */
+.hero-topshade {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 150px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.11;
+  background: linear-gradient(to bottom,
+    rgba(6, 4, 2, 0.38) 0%,
+    rgba(6, 4, 2, 0.10) 55%,
+    rgba(6, 4, 2, 0.00) 100%
+  );
+}
+
+
+/* =========================================================
+   Hero  —  Decorative rings (optional)
+========================================================= */
+.hero-ring {
+  position: absolute;
+  right: calc(var(--hero-side) + 40px);
+  top: 50%;
+  z-index: 2;
+  width: 320px;
+  height: 320px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  border: 1px solid rgba(200, 170, 120, 0.14);
+  pointer-events: none;
+}
+
+.hero-ring::before {
+  content: '';
+  position: absolute;
+  inset: 28px;
+  border-radius: 9999px;
+  border: 1px solid rgba(200, 170, 120, 0.08);
+}
+
+
+/* =========================================================
+   Hero  —  English watermark object (z:2)
+========================================================= */
+.hero-object {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  letter-spacing: 0.58em;
+  font-size: clamp(5.2rem, 12vw, 10.2rem);
+  color: rgba(255, 252, 245, 0.052);
+  mix-blend-mode: soft-light;
+
+  /* ✅ 追加：objectも少し上へ */
+  transform: translate3d(0, var(--hero-object-shift), 0);
+}
+
+
+/* =========================================================
+   Hero  —  Center layout wrapper (z:3)
+========================================================= */
+.hero-center {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding-inline: var(--hero-side);
+}
+
+.hero-center-copy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* ✅ 変更：コピー塊を少し上へ（数値は :root の変数で管理） */
+  transform: translate3d(0, var(--hero-copy-shift), 0);
+
+  max-width: min(860px, 88vw);
+  margin-inline: auto;
+  text-align: center;
+  gap: 14px;
+}
+
+
+/* =========================================================
+   Hero  —  Typography
+========================================================= */
+
+/* tag */
+.hero-tag {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: 0.58rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--c-ivory-44);
+}
+
+/* h1 */
+.hero-h1 {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* small line */
+.hero-title-sm {
+  font-family: "Noto Serif JP", serif;
+  font-weight: 200;
+  font-size: clamp(1.05rem, 1.75vw, 1.55rem);
+  letter-spacing: 0.18em;
+  line-height: 1.6;
+  color: var(--c-ivory-56);
+}
+
+/* main line */
+.hero-title-lg {
+  font-family: "Noto Serif JP", serif;
+  font-weight: 200;
+  font-size: clamp(2.25rem, 4.4vw, 3.9rem);
+  letter-spacing: 0.05em;
+  line-height: 1.16;
+  color: var(--c-ivory-84);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.14);
+}
+
+/* subtitle */
+.hero-sub {
+  margin-top: 8px;   /* 6〜12pxで好み調整 */
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--c-ivory-40);
+}
+
+/* ── tone-down modifiers ── */
+.hero-tag-tight  { opacity: 0.46; }
+.hero-title-tight{ margin-bottom: 24px; }
+.hero-sub-tight  { opacity: 0.86; }
+
+/* ── gold heat effect ── */
+.hero-heat,
+.hero-heat-en {
+  position: relative;
+  display: inline-block;
+  color: var(--c-gold-mute);
+}
+
+.hero-heat::after,
+.hero-heat-en::after {
+  content: '';
+  position: absolute;
+  left: -0.02em;
+  right: -0.02em;
+  bottom: 0.08em;
+  height: 0.38em;
+  background: linear-gradient(to top,
+    rgba(176, 144, 96, 0.24),
+    rgba(176, 144, 96, 0.00)
+  );
+  pointer-events: none;
+}
+
+/* ── horizontal rule ── */
+.hero-rule {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--c-gold-60);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+
+/* =========================================================
+   Hero  —  Split text animation
+========================================================= */
+.split { display: inline-block; }
+
+.split-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.998);
+  filter: blur(0.18px);
+  will-change: opacity, transform, filter;
+  animation: charIn 0.92s var(--ease-smooth) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes charIn {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+
+/* =========================================================
+   Hero  —  CTA
+========================================================= */
+.hero-center-cta {
+  position: absolute;
+  inset: auto 0 clamp(66px, 7.2vw, 96px);
+  display: flex;
+  justify-content: center;
+}
+
+/* 区切り線 */
+.hero-center-cta::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  width: 86px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: var(--c-gold-20);
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-family: "Noto Serif JP", serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: var(--c-ivory-84);
+  text-decoration: none;
+  transition: gap 0.55s var(--ease-smooth);
+}
+
+.hero-cta::after {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--c-gold-46);
+  transition: width 0.75s var(--ease-smooth);
+}
+
+.hero-cta:hover              { gap: 22px; }
+.hero-cta:hover::after       { width: 54px; }
+
+
+/* =========================================================
+   Hero  —  Scroll indicator
+   ★ v2 : パルスアニメーション追加
+========================================================= */
+.hero-scroll {
+  position: absolute;
+  right: var(--hero-side);
+  bottom: 36px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--c-scroll);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  writing-mode: vertical-rl;
+  pointer-events: none;
+}
+
+.hero-scroll::before {
+  content: '';
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--c-scroll-ln) 40%,
+    var(--c-scroll-ln) 60%,
+    transparent 100%
+  );
+  animation: scrollPulse 2.4s var(--ease-smooth) infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.85); }
+  50%       { opacity: 1.0; transform: scaleY(1.00); }
+}
+
+
+/* =========================================================
+   Hero  —  Palm sway
+========================================================= */
+.palm-sway {
+  transform-origin: 50% 60%;
+  will-change: transform;
+  animation: palmSway 18s ease-in-out infinite;
+}
+
+@keyframes palmSway {
+  0%   { transform: translate3d(-0.8%,  0.2%, 0) rotate(-0.55deg) scale(1.06); }
+  50%  { transform: translate3d( 0.6%, -0.2%, 0) rotate( 0.35deg) scale(1.06); }
+  100% { transform: translate3d( 0.9%,  0.1%, 0) rotate(-0.15deg) scale(1.06); }
+}
+
+
+/* =========================================================
+   Hero  —  Intro FX (消える演出 / 最初の10s)
+========================================================= */
+.hero-introfx {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  animation: introFxOut 10s var(--ease-smooth) forwards;
+}
+
+@keyframes introFxOut {
+  0%, 86% { opacity: 1; }
+  100%     { opacity: 0; }
+}
+
+/* 金の気配 */
+.hero-introglow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 220, 140, 0.16), transparent 55%),
+    radial-gradient(circle at 25% 28%, rgba(255, 235, 200, 0.10), transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* 星 */
+.hero-star {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 252, 245, 0.95);
+  transform: translateZ(0);
+  animation: starTwinkle ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+.hero-star::before,
+.hero-star::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  background: rgba(255, 252, 245, 0.40);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.hero-star::after {
+  width: 1px;
+  height: 14px;
+}
+
+.hero-star:nth-child(3n)::before,
+.hero-star:nth-child(3n)::after { opacity: 0.55; }
+
+@keyframes starTwinkle {
+  0%   { opacity: 0.35; transform: scale(1.00); }
+  38%  { opacity: 0.95; transform: scale(1.08); }
+  45%  { opacity: 0.75; transform: scale(1.02); }
+  100% { opacity: 0.35; transform: scale(1.00); }
+}
+
+/* 光の粒 */
+.hero-mote {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 214, 140, 0.92);
+  mix-blend-mode: screen;
+  transform: translateZ(0);
+  animation: moteFloat ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes moteFloat {
+  0%   { transform: translate3d( 0.0px,   0px, 0) scale(1.00); opacity: 0.12; }
+  45%  { transform: translate3d( 0.6px,  -6px, 0) scale(1.05); opacity: 0.48; }
+  100% { transform: translate3d(-0.3px, -10px, 0) scale(1.00); opacity: 0.14; }
+}
+
+
+/* =========================================================
+   Responsive
+========================================================= */
+@media (max-width: 1024px) {
+  .hero-ring {
+    right: 24px;
+    width: 220px;
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  html { scroll-padding-top: 96px; }
+
+  /* ✅ SPでは上げすぎない */
+  :root{
+    --hero-copy-shift:   -6px;
+    --hero-object-shift: -10px;
+  }
+
+  .hero-object {
+    font-size: clamp(4.4rem, 14vw, 7.6rem);
+    letter-spacing: 0.52em;
+  }
+
+  .hero-center-copy {
+    gap: 12px;
+  }
+
+  .hero-title-lg { font-size: clamp(2.05rem, 7.8vw, 3.2rem); }
+
+  .hero-ring {
+    right: -20px;
+    top: 38%;
+    width: 180px;
+    height: 180px;
+  }
+
+  .hero-scroll { display: none; }
+}
+
+
+/* =========================================================
+   Reduced Motion  (single source of truth)
+========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .aq-reveal,
+  .hero-cta,
+  .hero-cta::after,
+  .palm-sway,
+  .hero-introfx,
+  .hero-star,
+  .hero-mote,
+  .hero-scroll::before {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .aq-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .palm-sway     { transform: scale(1.06); }
+  .hero-introfx  { opacity: 0; }
+  .split-char    { animation: none; opacity: 1; transform: none; filter: none; }
+}
