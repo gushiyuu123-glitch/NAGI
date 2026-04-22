@@ -630,3 +630,20 @@ body::after {
   .hero-introfx  { opacity: 0; }
   .split-char    { animation: none; opacity: 1; transform: none; filter: none; }
 }
+/* 極薄：揺れてると気づくか気づかないか */
+.palm-sway {
+  animation: palmSway 10.5s ease-in-out infinite;
+  transform-origin: 55% 40%;
+  will-change: transform;
+}
+
+@keyframes palmSway {
+  0%   { transform: translate3d(0,0,0) rotate(-0.35deg) scale(1.02); }
+  50%  { transform: translate3d(0.4%, -0.2%, 0) rotate(0.35deg) scale(1.02); }
+  100% { transform: translate3d(0,0,0) rotate(-0.35deg) scale(1.02); }
+}
+
+/* 端末酔い対策 */
+@media (prefers-reduced-motion: reduce) {
+  .palm-sway { animation: none; }
+}
