@@ -1,8 +1,8 @@
 // src/sections/ConceptSection.jsx（SP版）
-import { conceptValues } from '../data/siteData'
-import useReveal from '../hooks/useReveal'
-import TextureOverlay from '../components/TextureOverlay'
-
+// src/sections/sp/ConceptSectionSP.jsx
+import { conceptValues } from '../../data/siteData'
+import useReveal from '../../hooks/useReveal'
+import TextureOverlay from '../../components/TextureOverlay'
 function nl2br(text) {
   return text.split('\n').map((line, index, arr) => (
     <span key={`${line}-${index}`}>
